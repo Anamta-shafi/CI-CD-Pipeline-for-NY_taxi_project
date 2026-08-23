@@ -1,9 +1,7 @@
 name: CD - prod (main) branch
 
-# Runs on PRs targeting main (so the merge is gated on tests passing)
-# and on pushes to main (which only happen once a PR has actually been
-# merged). The build-and-push job is restricted to the push case, so
-# nothing gets published to the registry until code is really on main.
+# Runs on PRs targeting main
+# and on pushes to main.
 on:
   push:
     branches: [main]
@@ -13,6 +11,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -33,9 +32,6 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
 
-    # Spin up a real Postgres for this job, the same way docker-compose
-    # does locally. This proves the loader actually works end-to-end,
-    # not just that the transform function behaves in isolation.
     services:
       postgres:
         image: postgres:16
@@ -87,9 +83,11 @@ jobs:
     needs: integration-test
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -107,6 +105,5 @@ jobs:
           context: .
           push: true
           tags: |
-           tags: |
             ghcr.io/anamta-shafi/ci-cd-pipeline-for-ny-taxi-project/taxi-loader:latest
             ghcr.io/anamta-shafi/ci-cd-pipeline-for-ny-taxi-project/taxi-loader:${{ github.sha }}
