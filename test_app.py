@@ -32,6 +32,25 @@ def test_transform_chunk_handles_nan_in_integer_columns():
     assert result['passenger_count'].isna().sum() == 1
     assert result.loc[0, 'passenger_count'] == 1
 
+def test_transform_chunk_handles_negative_trip_distance():
+    chunk = pd.DataFrame({
+        'VendorID': [1],
+        'passenger_count': [2],
+        'RatecodeID': [1],
+        'payment_type': [1],
+        'trip_distance': [-5.0]
+    })
+
+    result = app.transform_chunk(chunk)
+
+    assert result.loc[0, 'trip_distance'] == -5.0
+
+    
+def test_transform_chunk_raises_for_empty_dataframe():
+    chunk = pd.DataFrame()
+
+    with pytest.raises(ValueError, match="vendorid"):
+        app.transform_chunk(chunk)
 
 
 def test_create_table_sql_defines_expected_columns():
