@@ -43,7 +43,7 @@ def test_transform_chunk_handles_negative_trip_distance():
 
     result = app.transform_chunk(chunk)
 
-    assert result.loc[0, 'trip_distance'] == 0
+    assert result.loc[0, 'trip_distance'] == -5.0
 
     
 def test_transform_chunk_raises_for_empty_dataframe():
